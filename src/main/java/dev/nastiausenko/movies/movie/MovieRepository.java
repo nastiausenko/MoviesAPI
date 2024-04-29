@@ -1,4 +1,4 @@
-package dev.nastiausenko.movies;
+package dev.nastiausenko.movies.movie;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;

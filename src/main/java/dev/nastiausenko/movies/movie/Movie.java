@@ -1,5 +1,6 @@
-package dev.nastiausenko.movies;
+package dev.nastiausenko.movies.movie;
 
+import dev.nastiausenko.movies.review.Review;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
