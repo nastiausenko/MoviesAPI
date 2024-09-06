@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/V1/login", "/api/V1/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/V1/reviews").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/V1/user-reviews").authenticated()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

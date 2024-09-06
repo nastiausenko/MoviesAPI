@@ -1,10 +1,10 @@
-package dev.nastiausenko.movies.jwt;
+package dev.nastiausenko.movies.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class JwtResponse {
+public class UserResponse {
     private String token;
 }
