@@ -56,14 +56,4 @@ public class UserController {
             return new ResponseEntity<>("Invalid credentials", HttpStatus.UNAUTHORIZED);
         }
     }
-
-    @GetMapping("/user-reviews")
-    public ResponseEntity<?> getUserReviews(@PathVariable ObjectId id) {
-        try {
-            List<Review> reviews = userService.getUserReviews(id);
-            return new ResponseEntity<>(reviews, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
 }

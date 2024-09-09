@@ -1,12 +1,9 @@
 package dev.nastiausenko.movies.user;
 
-import dev.nastiausenko.movies.review.Review;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,13 +28,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    //TODO через авторизацію а не pathVeriable
-    public List<Review> getUserReviews(ObjectId id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            return user.get().getReviewIds();
-        } else {
-            throw new RuntimeException("User with this username does not exist");
-        }
+    public User findUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(NullPointerException::new);
     }
 }
