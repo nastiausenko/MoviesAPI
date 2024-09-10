@@ -1,7 +1,5 @@
 package dev.nastiausenko.movies.user;
 
-import dev.nastiausenko.movies.user.User;
-import dev.nastiausenko.movies.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

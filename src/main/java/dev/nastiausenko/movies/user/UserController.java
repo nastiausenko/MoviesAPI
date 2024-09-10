@@ -1,19 +1,16 @@
 package dev.nastiausenko.movies.user;
 
-import dev.nastiausenko.movies.review.Review;
 import dev.nastiausenko.movies.user.dto.UserResponse;
 import dev.nastiausenko.movies.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/V1")
@@ -23,6 +20,7 @@ public class UserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final MongoUserDetailsService userDetailsService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User request) {
@@ -55,5 +53,25 @@ public class UserController {
         } catch (Exception e) {
             return new ResponseEntity<>("Invalid credentials", HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @PutMapping("/change-username")
+    public ResponseEntity<?> update(@RequestBody ChangeUsernameRequest request) {
+        try {
+            userService.editUsername(request.getUsername());
+            String token = getNewToken(request.getUsername());
+            return new ResponseEntity<>(new UserResponse(token), HttpStatus.OK);
+        } catch(RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    private String getNewToken(String username) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),
+                userDetails.getPassword(), userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        return jwtUtil.generateToken(authenticationToken);
     }
 }
