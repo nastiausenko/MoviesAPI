@@ -29,6 +29,6 @@ public class UserService {
     }
 
     public User findUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(NullPointerException::new);
+        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
