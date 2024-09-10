@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChangeUsernameRequest {
-    private String newUsername;
+public class ChangePasswordRequest {
+    private String newPassword;
 }

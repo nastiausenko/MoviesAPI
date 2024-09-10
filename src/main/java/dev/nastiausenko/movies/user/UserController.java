@@ -58,9 +58,19 @@ public class UserController {
     @PutMapping("/change-username")
     public ResponseEntity<?> update(@RequestBody ChangeUsernameRequest request) {
         try {
-            userService.editUsername(request.getUsername());
-            String token = getNewToken(request.getUsername());
+            userService.editUsername(request.getNewUsername());
+            String token = getNewToken(request.getNewUsername());
             return new ResponseEntity<>(new UserResponse(token), HttpStatus.OK);
+        } catch(RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> updatePassword(@RequestBody ChangePasswordRequest request) {
+        try {
+            userService.editPassword(request.getNewPassword());
+            return new ResponseEntity<>(new UserResponse(null), HttpStatus.OK);
         } catch(RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }

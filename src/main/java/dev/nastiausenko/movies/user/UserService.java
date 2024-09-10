@@ -43,6 +43,18 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void editPassword(String password) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userName = auth.getName();
+        User user = userRepository.findByUsername(userName).orElseThrow(() -> new RuntimeException("User not found"));
+        if (passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("New password matches old password");
+        }
+
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+    }
+
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
     }
