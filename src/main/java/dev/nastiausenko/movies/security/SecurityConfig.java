@@ -30,6 +30,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/V1/login", "/api/V1/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/V1/reviews").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/V1/reviews/user-reviews").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/V1/reviews/{id}").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/V1/reviews/{id}").authenticated()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

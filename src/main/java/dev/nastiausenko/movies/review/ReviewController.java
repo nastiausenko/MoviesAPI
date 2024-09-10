@@ -36,4 +36,24 @@ public class ReviewController {
         List<Review> reviews = reviewService.getAllUserReviews(id);
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Review> updateReview(@PathVariable("id") ObjectId id, @RequestBody Map<String, String> payload) {
+        try {
+            Review updatedReview = reviewService.editReview(id, payload.get("reviewBody"));
+            return new ResponseEntity<>(updatedReview, HttpStatus.OK);
+        } catch(RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteReview(@PathVariable("id") ObjectId id, @RequestParam String imdbId) {
+        try {
+            reviewService.deleteReview(id, imdbId);
+            return new ResponseEntity<>("Review deleted successfully", HttpStatus.OK);
+        } catch(RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
 }
