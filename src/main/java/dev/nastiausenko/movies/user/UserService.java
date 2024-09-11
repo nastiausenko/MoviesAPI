@@ -49,7 +49,7 @@ public class UserService {
 
     public String loginUser(User request) {
         try {
-            if (userRepository.findByUsername(request.getEmail()).isEmpty()) {
+            if (userRepository.findByEmail(request.getEmail()).isEmpty()) {
                 throw new UserNotFoundException();
             }
             Authentication authentication = authenticationManager.authenticate(
