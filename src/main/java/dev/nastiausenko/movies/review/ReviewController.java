@@ -1,8 +1,8 @@
 package dev.nastiausenko.movies.review;
 
 import dev.nastiausenko.movies.user.UserService;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,13 +15,11 @@ import java.util.Map;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/api/V1/reviews")
+@RequiredArgsConstructor
 public class ReviewController {
 
-    @Autowired
-    private ReviewService reviewService;
-
-    @Autowired
-    private UserService userService;
+    private final ReviewService reviewService;
+    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<Review> addReview(@RequestBody Map<String, String> payload) {

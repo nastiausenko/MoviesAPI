@@ -1,10 +1,14 @@
 package dev.nastiausenko.movies.user;
 
+import dev.nastiausenko.movies.jwt.JwtUtil;
 import dev.nastiausenko.movies.user.exception.EmailAlreadyTakenException;
 import dev.nastiausenko.movies.user.exception.SameNewPasswordException;
 import dev.nastiausenko.movies.user.exception.UserNotFoundException;
 import dev.nastiausenko.movies.user.exception.UsernameAlreadyTakenException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,8 +22,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
-    public void registerUser(User request) {
+    public String registerUser(User request) {
         Optional<User> existingUser = userRepository.findByUsername(request.getUsername());
         Optional<User> existingEmail = userRepository.findByEmail(request.getEmail());
 
@@ -38,9 +44,27 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
+        return loginUser(request);
+    }
+
+    public String loginUser(User request) {
+        try {
+            if (userRepository.findByUsername(request.getEmail()).isEmpty()) {
+                throw new UserNotFoundException();
+            }
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            return jwtUtil.generateToken(authentication);
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("Invalid credentials");
+        }
     }
 
     public void editUsername(String username) {
+        //try catch
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userName = auth.getName();
         User user = userRepository.findByUsername(userName).orElseThrow(UserNotFoundException::new);
@@ -54,6 +78,7 @@ public class UserService {
     }
 
     public void editPassword(String password) {
+        //try catch
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userName = auth.getName();
         User user = userRepository.findByUsername(userName).orElseThrow(UserNotFoundException::new);
