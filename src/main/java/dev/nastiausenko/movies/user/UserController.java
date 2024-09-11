@@ -1,6 +1,8 @@
 package dev.nastiausenko.movies.user;
 
-import dev.nastiausenko.movies.user.dto.UserResponse;
+import dev.nastiausenko.movies.user.dto.request.ChangePasswordRequest;
+import dev.nastiausenko.movies.user.dto.request.ChangeUsernameRequest;
+import dev.nastiausenko.movies.user.dto.response.UserResponse;
 import dev.nastiausenko.movies.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,6 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User request) {
-        try {
             userService.registerUser(request);
 
             Authentication authentication = authenticationManager.authenticate(
@@ -35,9 +36,6 @@ public class UserController {
             String jwtToken = jwtUtil.generateToken(authentication);
 
             return new ResponseEntity<>(new UserResponse(jwtToken), HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
     }
 
     @PostMapping("/login")
@@ -57,23 +55,15 @@ public class UserController {
 
     @PutMapping("/change-username")
     public ResponseEntity<?> update(@RequestBody ChangeUsernameRequest request) {
-        try {
             userService.editUsername(request.getNewUsername());
             String token = getNewToken(request.getNewUsername());
             return new ResponseEntity<>(new UserResponse(token), HttpStatus.OK);
-        } catch(RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-        }
     }
 
     @PutMapping("/change-password")
     public ResponseEntity<?> updatePassword(@RequestBody ChangePasswordRequest request) {
-        try {
             userService.editPassword(request.getNewPassword());
             return new ResponseEntity<>(new UserResponse(null), HttpStatus.OK);
-        } catch(RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-        }
     }
 
     private String getNewToken(String username) {

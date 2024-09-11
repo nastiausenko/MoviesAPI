@@ -1,4 +1,4 @@
-package dev.nastiausenko.movies.user.dto;
+package dev.nastiausenko.movies.user.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

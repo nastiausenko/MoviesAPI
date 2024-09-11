@@ -1,5 +1,9 @@
 package dev.nastiausenko.movies.user;
 
+import dev.nastiausenko.movies.user.exception.EmailAlreadyTakenException;
+import dev.nastiausenko.movies.user.exception.SameNewPasswordException;
+import dev.nastiausenko.movies.user.exception.UserNotFoundException;
+import dev.nastiausenko.movies.user.exception.UsernameAlreadyTakenException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,8 +21,14 @@ public class UserService {
 
     public void registerUser(User request) {
         Optional<User> existingUser = userRepository.findByUsername(request.getUsername());
+        Optional<User> existingEmail = userRepository.findByEmail(request.getEmail());
+
         if (existingUser.isPresent()) {
-            throw new RuntimeException("User with this username already exists");
+            throw new UsernameAlreadyTakenException(request.getUsername());
+        }
+
+        if (existingEmail.isPresent()) {
+            throw new EmailAlreadyTakenException(request.getEmail());
         }
 
         User user = User.builder()
@@ -33,10 +43,10 @@ public class UserService {
     public void editUsername(String username) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userName = auth.getName();
-        User user = userRepository.findByUsername(userName).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(userName).orElseThrow(UserNotFoundException::new);
         Optional<User> existingUser = userRepository.findByUsername(username);
         if (existingUser.isPresent()) {
-            throw new RuntimeException("User with this username already exists");
+            throw new UsernameAlreadyTakenException(username);
         }
 
         user.setUsername(username);
@@ -46,9 +56,9 @@ public class UserService {
     public void editPassword(String password) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userName = auth.getName();
-        User user = userRepository.findByUsername(userName).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(userName).orElseThrow(UserNotFoundException::new);
         if (passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("New password matches old password");
+            throw new SameNewPasswordException();
         }
 
         user.setPassword(passwordEncoder.encode(password));
@@ -56,6 +66,6 @@ public class UserService {
     }
 
     public User findUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 }

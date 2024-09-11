@@ -1,10 +1,13 @@
 package dev.nastiausenko.movies.review;
 
 import dev.nastiausenko.movies.movie.Movie;
+import dev.nastiausenko.movies.review.exception.ForbiddenException;
+import dev.nastiausenko.movies.review.exception.ReviewNotFoundException;
 import dev.nastiausenko.movies.user.User;
 import dev.nastiausenko.movies.user.UserRepository;
+import dev.nastiausenko.movies.user.exception.UserNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
@@ -16,21 +19,17 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ReviewService {
 
-    @Autowired
-    private ReviewRepository reviewRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private MongoTemplate mongoTemplate;
+    private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
+    private final MongoTemplate mongoTemplate;
 
     public Review createReview(String reviewBody, String imdbId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
         Review review = reviewRepository.insert(new Review(reviewBody, user.getId()));
 
         mongoTemplate.update(Movie.class)
@@ -53,12 +52,12 @@ public class ReviewService {
     public Review editReview(ObjectId id, String reviewBody) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
 
-        Review review = reviewRepository.findById(id).orElseThrow(() -> new RuntimeException("Review not found"));
+        Review review = reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
 
         if (!review.getUserId().equals(user.getId())) {
-            throw new RuntimeException("You can only edit your own reviews");
+            throw new ForbiddenException("You can only edit your own reviews");
         }
 
         review.setBody(reviewBody);
@@ -68,12 +67,12 @@ public class ReviewService {
     public void deleteReview(ObjectId id, String imdbId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
 
-        Review review = reviewRepository.findById(id).orElseThrow(() -> new RuntimeException("Review not found"));
+        Review review = reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
 
         if (!review.getUserId().equals(user.getId())) {
-            throw new RuntimeException("You can only delete your own reviews");
+            throw new ForbiddenException("You can only delete your own reviews");
         }
 
         reviewRepository.deleteById(id);
