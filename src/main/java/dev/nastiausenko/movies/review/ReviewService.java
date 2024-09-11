@@ -45,8 +45,15 @@ public class ReviewService {
         return review;
     }
 
-    public List<Review> getAllUserReviews(ObjectId id) {
-        return reviewRepository.findByUserId(id);
+    public List<Review> getAllUserReviews() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            ObjectId id = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+            return reviewRepository.findByUserId(id);
+        } catch (Exception e) {
+            throw new ForbiddenException("Forbidden");
+        }
     }
 
     public Review editReview(ObjectId id, String reviewBody) {
