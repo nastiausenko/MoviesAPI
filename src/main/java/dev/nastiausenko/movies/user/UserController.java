@@ -33,14 +33,14 @@ public class UserController {
        return new ResponseEntity<>(new UserResponse(jwtToken), HttpStatus.OK);
     }
 
-    @PutMapping("/change-username")
+    @PatchMapping("/change-username")
     public ResponseEntity<?> update(@RequestBody ChangeUsernameRequest request) {
             userService.editUsername(request.getNewUsername());
             String token = getNewToken(request.getNewUsername());
             return new ResponseEntity<>(new UserResponse(token), HttpStatus.OK);
     }
 
-    @PutMapping("/change-password")
+    @PatchMapping("/change-password")
     public ResponseEntity<?> updatePassword(@RequestBody ChangePasswordRequest request) {
             userService.editPassword(request.getNewPassword());
             return new ResponseEntity<>(new UserResponse(null), HttpStatus.OK);
