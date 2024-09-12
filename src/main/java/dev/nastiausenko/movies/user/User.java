@@ -10,11 +10,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Document(collection = "user")
 @Data
@@ -28,6 +29,7 @@ public class User implements UserDetails {
     private String username;
     private String email;
     private String password;
+    private Set<String> roles;
 
     @DocumentReference
     private List<Review> reviewIds;
@@ -42,10 +44,11 @@ public class User implements UserDetails {
         return password;
     }
 
-    //TODO user role
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
     }
 
     @Override

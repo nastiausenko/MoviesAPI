@@ -28,18 +28,18 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/V1/login", "/api/V1/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/V1/reviews").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/V1/reviews/user-reviews").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/V1/reviews/{id}",
-                                "/api/V1/change-username",
-                                "/api/V1/change-password").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/V1/reviews/{id}").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/V1/reviews").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/V1/reviews/user-reviews").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/V1/reviews/{id}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/V1/change-username").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/V1/change-password").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/V1/reviews/{id}").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/V1/admin/**").hasAuthority("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-
     }
 
     @Bean
