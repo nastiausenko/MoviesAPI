@@ -88,7 +88,7 @@ public class AdminService {
         }
     }
 
-    public void unblockUser(String username) {
+    public void unlockUser(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
         if (!user.isAccountNonLocked()) {
             user.setBlocked(false);

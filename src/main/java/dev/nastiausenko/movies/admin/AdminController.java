@@ -41,4 +41,18 @@ public class AdminController {
     public ResponseEntity<?> getAllUsers() {
         return ResponseEntity.ok(adminService.getAllUsers());
     }
+
+    @SecurityRequirement(name = "JWT")
+    @PostMapping("/block-user/{username}")
+    public ResponseEntity<?> blockUser(@PathVariable String username) {
+        adminService.blockUser(username);
+        return ResponseEntity.ok("User " + username + " has been blocked");
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @PostMapping("/unlock-user/{username}")
+    public ResponseEntity<?> revokeUser(@PathVariable String username) {
+        adminService.unlockUser(username);
+        return ResponseEntity.ok("User " + username + " has been unlocked");
+    }
 }
