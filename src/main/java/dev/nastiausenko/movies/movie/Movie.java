@@ -2,6 +2,7 @@ package dev.nastiausenko.movies.movie;
 
 import dev.nastiausenko.movies.review.Review;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Document(collection = "movies")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Movie {

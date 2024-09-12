@@ -30,6 +30,7 @@ public class User implements UserDetails {
     private String email;
     private String password;
     private Set<String> roles;
+    private boolean isBlocked;
 
     @DocumentReference
     private List<Review> reviewIds;
@@ -58,7 +59,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !isBlocked;
     }
 
     @Override

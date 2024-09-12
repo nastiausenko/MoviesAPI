@@ -41,6 +41,7 @@ public class UserService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword())) // Захист пароля
                 .roles(Set.of("USER"))
+                .isBlocked(false)
                 .build();
 
         userRepository.save(user);
