@@ -1,6 +1,9 @@
 package dev.nastiausenko.movies.admin;
 
+import dev.nastiausenko.movies.movie.Movie;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -13,15 +16,29 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
     private final AdminService adminService;
 
+    @SecurityRequirement(name = "JWT")
     @PostMapping("/grant-admin/{username}")
     public ResponseEntity<?> grantAdmin(@PathVariable String username) {
             adminService.grantAdmin(username);
             return ResponseEntity.ok("User " + username + " has been granted admin rights");
     }
 
+    @SecurityRequirement(name = "JWT")
     @PostMapping("/revoke-admin/{username}")
     public ResponseEntity<?> revokeAdmin(@PathVariable String username) {
         adminService.revokeAdmin(username);
         return ResponseEntity.ok("User " + username + " has been revoked");
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @PostMapping("/add-movie")
+    public ResponseEntity<?> addMovie(@RequestBody Movie movie) {
+        return new ResponseEntity<>(adminService.addMovie(movie), HttpStatus.OK);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @GetMapping("/all-users")
+    public ResponseEntity<?> getAllUsers() {
+        return ResponseEntity.ok(adminService.getAllUsers());
     }
 }

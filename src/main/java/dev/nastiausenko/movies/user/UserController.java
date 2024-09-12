@@ -4,6 +4,8 @@ import dev.nastiausenko.movies.jwt.JwtUtil;
 import dev.nastiausenko.movies.user.dto.request.ChangePasswordRequest;
 import dev.nastiausenko.movies.user.dto.request.ChangeUsernameRequest;
 import dev.nastiausenko.movies.user.dto.response.UserResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/V1")
+@Tag(name = "User", description = "The User API")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -33,6 +36,7 @@ public class UserController {
        return new ResponseEntity<>(new UserResponse(jwtToken), HttpStatus.OK);
     }
 
+    @SecurityRequirement(name = "JWT")
     @PatchMapping("/change-username")
     public ResponseEntity<?> update(@RequestBody ChangeUsernameRequest request) {
             userService.editUsername(request.getNewUsername());
@@ -40,6 +44,7 @@ public class UserController {
             return new ResponseEntity<>(new UserResponse(token), HttpStatus.OK);
     }
 
+    @SecurityRequirement(name = "JWT")
     @PatchMapping("/change-password")
     public ResponseEntity<?> updatePassword(@RequestBody ChangePasswordRequest request) {
             userService.editPassword(request.getNewPassword());

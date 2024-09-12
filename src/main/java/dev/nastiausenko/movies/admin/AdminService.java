@@ -41,6 +41,8 @@ public class AdminService {
         }
     }
 
+
+    //to show users without ourselves
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
