@@ -1,5 +1,6 @@
 package dev.nastiausenko.movies.admin;
 
+import dev.nastiausenko.movies.admin.exception.AdminRightsException;
 import dev.nastiausenko.movies.movie.Movie;
 import dev.nastiausenko.movies.movie.MovieRepository;
 import dev.nastiausenko.movies.user.User;
@@ -25,7 +26,7 @@ public class AdminService {
             userRepository.save(user);
         } else {
             //TODO exception
-            throw new RuntimeException("User already has admin rights");
+            throw new AdminRightsException("User " + username + " already has admin rights");
         }
     }
 
@@ -37,7 +38,7 @@ public class AdminService {
             userRepository.save(user);
         } else {
             //TODO exception
-            throw new RuntimeException("User doesn't have admin rights");
+            throw new AdminRightsException("User " + username + " doesn't have admin rights");
         }
     }
 
