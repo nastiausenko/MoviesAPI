@@ -19,4 +19,8 @@ public class MovieService {
     public Optional<Movie> findMovieByImdbId(String imdbId) {
         return repository.findByImdbId(imdbId);
     }
+
+    public List<Movie> findMovieByGenres(List<String> genres) {
+        return repository.findByGenresIn(genres);
+    }
 }

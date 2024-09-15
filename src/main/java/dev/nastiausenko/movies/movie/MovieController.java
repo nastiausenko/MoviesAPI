@@ -25,4 +25,9 @@ public class MovieController {
     public ResponseEntity<Optional<Movie>> findMovieById(@PathVariable String imdbId) {
         return new ResponseEntity<>(service.findMovieByImdbId(imdbId), HttpStatus.OK);
     }
+
+    @GetMapping("/genres")
+    public ResponseEntity<List<Movie>> findMovieByGenre(@RequestParam List<String> genres) {
+        return new ResponseEntity<>(service.findMovieByGenres(genres), HttpStatus.OK);
+    }
 }
