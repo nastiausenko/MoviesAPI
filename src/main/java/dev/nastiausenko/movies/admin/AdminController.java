@@ -37,6 +37,19 @@ public class AdminController {
     }
 
     @SecurityRequirement(name = "JWT")
+    @PutMapping("/edit-movie/{imdbId}")
+    public ResponseEntity<?> editMovie(@PathVariable String imdbId, @RequestBody Movie movie) {
+        return new ResponseEntity<>(adminService.editMovie(imdbId, movie), HttpStatus.OK);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @PatchMapping("/delete-movie/{imdbId}")
+    public ResponseEntity<?> deleteMovie(@PathVariable String imdbId) {
+       adminService.deleteMovie(imdbId);
+       return ResponseEntity.ok("Movie " + imdbId + " has been deleted");
+    }
+
+    @SecurityRequirement(name = "JWT")
     @GetMapping("/all-users")
     public ResponseEntity<?> getAllUsers() {
         return ResponseEntity.ok(adminService.getAllUsers());

@@ -1,5 +1,6 @@
 package dev.nastiausenko.movies.exception;
 
+import dev.nastiausenko.movies.admin.exception.AdminRightsException;
 import dev.nastiausenko.movies.review.exception.ForbiddenException;
 import dev.nastiausenko.movies.review.exception.ReviewNotFoundException;
 import dev.nastiausenko.movies.user.exception.EmailAlreadyTakenException;
@@ -46,7 +47,7 @@ public class GlobalExceptionHandler {
     }
 
     //forbidden exception
-    @ExceptionHandler(ForbiddenException.class)
+    @ExceptionHandler({ForbiddenException.class, AdminRightsException.class})
     public ResponseEntity<ExceptionResponse> handleForbiddenException(RuntimeException ex, HttpServletRequest request) {
         ExceptionResponse response = new ExceptionResponse(ex.getMessage(), HttpStatus.FORBIDDEN.value(),
                 request.getRequestURI(), LocalDateTime.now());

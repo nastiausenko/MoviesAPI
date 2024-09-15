@@ -1,14 +1,18 @@
 package dev.nastiausenko.movies.admin;
 
+import dev.nastiausenko.movies.admin.exception.AdminRightsException;
 import dev.nastiausenko.movies.movie.Movie;
 import dev.nastiausenko.movies.movie.MovieRepository;
 import dev.nastiausenko.movies.user.User;
 import dev.nastiausenko.movies.user.UserRepository;
 import dev.nastiausenko.movies.user.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +28,7 @@ public class AdminService {
             user.getRoles().add("ADMIN");
             userRepository.save(user);
         } else {
-            //TODO exception
-            throw new RuntimeException("User already has admin rights");
+            throw new AdminRightsException("User " + username + " already has admin rights");
         }
     }
 
@@ -36,15 +39,16 @@ public class AdminService {
             user.getRoles().remove("ADMIN");
             userRepository.save(user);
         } else {
-            //TODO exception
-            throw new RuntimeException("User doesn't have admin rights");
+            throw new AdminRightsException("User " + username + " doesn't have admin rights");
         }
     }
 
-
-    //to show users without ourselves
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        return userRepository.findAll().stream()
+                .filter(user -> !user.getUsername().equals(username))
+                .collect(Collectors.toList());
     }
 
     public Movie addMovie(Movie movie) {
