@@ -20,12 +20,20 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
+    public Optional<Category> getById(ObjectId id) {
+        return categoryRepository.findById(id);
+    }
+
     public Category create(String name, List<String> movieTitles) {
-        List<Movie> movies = movieTitles.stream()
-                .map(movieRepository::findByTitle)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+        List<Movie> movies = null;
+
+        if (movieTitles != null && !movieTitles.isEmpty()) {
+            movies = movieTitles.stream()
+                    .map(movieRepository::findByTitle)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        }
 
         Category category = new Category();
         category.setName(name);
