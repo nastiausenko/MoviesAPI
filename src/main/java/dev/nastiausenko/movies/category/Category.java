@@ -21,6 +21,9 @@ public class Category {
     @Id
     private ObjectId id;
     private String name;
+    private ObjectId userId;
+    private boolean isAdminCategory;
+    private boolean isPublicCategory;
 
     @DocumentReference
     private List<Movie> movies;

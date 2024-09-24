@@ -7,6 +7,8 @@ import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -15,7 +17,7 @@ import java.util.List;
 @RestController
 @CrossOrigin(origins = "*")
 @AllArgsConstructor
-@PreAuthorize("hasAuthority('ADMIN')")
+//@PreAuthorize("hasAuthority('ADMIN')")
 @RequestMapping("/api/V1/categories")
 public class CategoryController {
     private final CategoryService categoryService;
