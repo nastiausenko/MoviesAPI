@@ -20,11 +20,17 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CategoryService {
     private final UserRepository userRepository;
-    private CategoryRepository categoryRepository;
-    private MovieRepository movieRepository;
+    private final CategoryRepository categoryRepository;
+    private final MovieRepository movieRepository;
 
     public List<Category> getAll() {
         return categoryRepository.findAll();
+    }
+
+    public List<Category> getAllPublicUserCategories() {
+        return categoryRepository.findAll().stream()
+                .filter(category -> category.isPublicCategory() && !category.isAdminCategory())
+                .toList();
     }
 
     public Optional<Category> getById(ObjectId id) {

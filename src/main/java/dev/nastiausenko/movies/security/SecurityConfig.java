@@ -39,7 +39,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/V1/admin/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/V1/admin/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/V1/categories/**").hasAuthority("USER")
-                        .requestMatchers(HttpMethod.GET, "/api/V1/categories/**").hasAuthority("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/V1/categories/**").hasAuthority("USER")
                         .requestMatchers(HttpMethod.PUT, "/api/V1/categories/**").hasAuthority("USER")
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
