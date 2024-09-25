@@ -32,22 +32,11 @@ public class CategoryService {
     }
 
     public Category create(String name, List<String> movieTitles) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        User user = getAuthenticatedUser();
         ObjectId id = user.getId();
-        boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(role -> role.getAuthority().equals("ADMIN"));
+        boolean isAdmin = isAdminUser();
 
-        List<Movie> movies = null;
-
-        if (movieTitles != null && !movieTitles.isEmpty()) {
-            movies = movieTitles.stream()
-                    .map(movieRepository::findByTitle)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-        }
+        List<Movie> movies = getMoviesByTitles(movieTitles);
 
         Category category = new Category();
         category.setName(name);
@@ -66,32 +55,53 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public Category addMovie(ObjectId id, List<String> movieTitles) {
+    public Category addMovie(ObjectId categoryId, List<String> movieTitles) {
+        User user = getAuthenticatedUser();
+        boolean isAdmin = isAdminUser();
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        checkAccessRights(category, user, isAdmin);
+
+        List<Movie> moviesToAdd = getMoviesByTitles(movieTitles);
+        category.getMovies().addAll(moviesToAdd);
+
+        return categoryRepository.save(category);
+    }
+
+    private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-        ObjectId userId = user.getId();
-        boolean isAdmin = authentication.getAuthorities().stream()
+        return userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    private boolean isAdminUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getAuthorities().stream()
                 .anyMatch(role -> role.getAuthority().equals("ADMIN"));
+    }
 
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+    private List<Movie> getMoviesByTitles(List<String> movieTitles) {
+        if (movieTitles == null || movieTitles.isEmpty()) {
+            return List.of();
+        }
 
-        List<Movie> movies = movieTitles.stream()
+        return movieTitles.stream()
                 .map(movieRepository::findByTitle)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .toList();
+                .collect(Collectors.toList());
+    }
 
+    private void checkAccessRights(Category category, User user, boolean isAdmin) {
         if (category.isAdminCategory() && !isAdmin) {
-            throw new ForbiddenException("Only admin can add movies to this category");
-        } else if (category.getUserId() != userId) {
-            throw new ForbiddenException("You can only add movies to your categories");
-        } else {
-            List<Movie> currentMovies = category.getMovies();
-            currentMovies.addAll(movies);
-            category.setMovies(currentMovies);
+            throw new ForbiddenException("Only admin can modify this category");
         }
 
-        return categoryRepository.save(category);
+        if (!category.isAdminCategory() && !category.getUserId().equals(user.getId())) {
+            throw new ForbiddenException("You can only modify your own categories");
+        }
     }
 }

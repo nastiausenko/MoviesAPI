@@ -17,7 +17,6 @@ import java.util.List;
 @RestController
 @CrossOrigin(origins = "*")
 @AllArgsConstructor
-//@PreAuthorize("hasAuthority('ADMIN')")
 @RequestMapping("/api/V1/categories")
 public class CategoryController {
     private final CategoryService categoryService;
