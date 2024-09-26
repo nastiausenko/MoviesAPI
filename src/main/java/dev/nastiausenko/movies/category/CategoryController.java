@@ -32,6 +32,27 @@ public class CategoryController {
         return new ResponseEntity<>(category, HttpStatus.OK);
     }
 
+    @SecurityRequirement(name = "JWT")
+    @PutMapping("/change-name/{id}")
+    public ResponseEntity<Category> changeName(@PathVariable("id") ObjectId id, @RequestParam String newName) {
+        Category category = categoryService.changeName(id, newName);
+        return new ResponseEntity<>(category, HttpStatus.OK);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @PutMapping("/remove-movie/{id}")
+    public ResponseEntity<Category> removeMovie(@PathVariable("id") ObjectId id, @RequestParam ObjectId movieId) {
+        Category category = categoryService.removeMovie(movieId, id);
+        return new ResponseEntity<>(category, HttpStatus.OK);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @DeleteMapping("/delete-category/{id}")
+    public ResponseEntity<Category> deleteCategory(@PathVariable("id") ObjectId id) {
+        categoryService.deleteCategory(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
         return new ResponseEntity<>(categoryService.getAll(), HttpStatus.OK);

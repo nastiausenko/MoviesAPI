@@ -76,6 +76,47 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    public Category changeName(ObjectId categoryId, String newName) {
+        User user = getAuthenticatedUser();
+        boolean isAdmin = isAdminUser();
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        checkAccessRights(category, user, isAdmin);
+        category.setName(newName);
+        return categoryRepository.save(category);
+    }
+
+    public void deleteCategory(ObjectId categoryId) {
+        User user = getAuthenticatedUser();
+        boolean isAdmin = isAdminUser();
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        checkAccessRights(category, user, isAdmin);
+        categoryRepository.delete(category);
+    }
+
+    public Category removeMovie(ObjectId movieId, ObjectId categoryId) {
+        User user = getAuthenticatedUser();
+        boolean isAdmin = isAdminUser();
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        checkAccessRights(category, user, isAdmin);
+
+        List<Movie> movies = category.getMovies();
+        Movie movieToRemove = movies.stream()
+                .filter(movie -> movie.getId().equals(movieId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Movie not found in category"));
+
+        movies.remove(movieToRemove);
+
+        category.setMovies(movies);
+        return categoryRepository.save(category);
+    }
+
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
