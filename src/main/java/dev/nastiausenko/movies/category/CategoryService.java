@@ -1,5 +1,6 @@
 package dev.nastiausenko.movies.category;
 
+import dev.nastiausenko.movies.category.exception.CategoryNotFoundException;
 import dev.nastiausenko.movies.movie.Movie;
 import dev.nastiausenko.movies.movie.MovieRepository;
 import dev.nastiausenko.movies.review.exception.ForbiddenException;
@@ -66,7 +67,7 @@ public class CategoryService {
         boolean isAdmin = isAdminUser();
 
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(CategoryNotFoundException::new);
 
         checkAccessRights(category, user, isAdmin);
 
@@ -81,7 +82,7 @@ public class CategoryService {
         boolean isAdmin = isAdminUser();
 
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(CategoryNotFoundException::new);
         checkAccessRights(category, user, isAdmin);
         category.setName(newName);
         return categoryRepository.save(category);
@@ -92,7 +93,7 @@ public class CategoryService {
         boolean isAdmin = isAdminUser();
 
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(CategoryNotFoundException::new);
         checkAccessRights(category, user, isAdmin);
         categoryRepository.delete(category);
     }
@@ -102,7 +103,7 @@ public class CategoryService {
         boolean isAdmin = isAdminUser();
 
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(CategoryNotFoundException::new);
         checkAccessRights(category, user, isAdmin);
 
         List<Movie> movies = category.getMovies();

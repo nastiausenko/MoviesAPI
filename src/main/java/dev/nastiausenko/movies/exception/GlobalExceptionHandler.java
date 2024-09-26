@@ -1,6 +1,7 @@
 package dev.nastiausenko.movies.exception;
 
 import dev.nastiausenko.movies.admin.exception.AdminRightsException;
+import dev.nastiausenko.movies.category.exception.CategoryNotFoundException;
 import dev.nastiausenko.movies.review.exception.ForbiddenException;
 import dev.nastiausenko.movies.review.exception.ReviewNotFoundException;
 import dev.nastiausenko.movies.user.exception.EmailAlreadyTakenException;
@@ -28,7 +29,7 @@ public class GlobalExceptionHandler {
     }
 
     //Not found exceptions
-    @ExceptionHandler({UserNotFoundException.class, ReviewNotFoundException.class})
+    @ExceptionHandler({UserNotFoundException.class, ReviewNotFoundException.class, CategoryNotFoundException.class})
     public ResponseEntity<ExceptionResponse> handleNotFoundException(RuntimeException ex, HttpServletRequest request) {
         ExceptionResponse response = new ExceptionResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value(),
                 request.getRequestURI(), LocalDateTime.now());
