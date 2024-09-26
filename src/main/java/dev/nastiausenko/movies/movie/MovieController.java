@@ -1,6 +1,6 @@
 package dev.nastiausenko.movies.movie;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,11 +10,10 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "*")
+@AllArgsConstructor
 @RequestMapping("/api/V1/movies")
 public class MovieController {
-
-    @Autowired
-    private MovieService service;
+    private final MovieService service;
 
     @GetMapping
     public ResponseEntity<List<Movie>> allMovies() {

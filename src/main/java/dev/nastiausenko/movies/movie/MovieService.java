@@ -1,16 +1,15 @@
 package dev.nastiausenko.movies.movie;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class MovieService {
-
-    @Autowired
-    private MovieRepository repository;
+    private final MovieRepository repository;
 
     public List<Movie> allMovies() {
         return repository.findAll();
