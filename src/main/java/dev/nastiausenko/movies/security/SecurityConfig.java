@@ -27,17 +27,21 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/V1/login", "/api/V1/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/V1/reviews").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/V1/user/login", "/api/V1/user/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/V1/user/reviews").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/V1/user/change-username").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/V1/user/change-password").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/V1/user/categories").hasAnyAuthority("USER", "ADMIN")
+
                         .requestMatchers(HttpMethod.GET, "/api/V1/reviews/user-reviews").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/V1/reviews/{id}").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/V1/change-username").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/V1/change-password").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/V1/reviews/{id}").hasAnyAuthority("USER", "ADMIN")
+
                         .requestMatchers(HttpMethod.POST, "/api/V1/admin/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/V1/admin/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/V1/admin/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/V1/admin/**").hasAuthority("ADMIN")
+
                         .requestMatchers(HttpMethod.POST, "/api/V1/categories/**").hasAuthority("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/V1/categories/**").hasAuthority("USER")
                         .requestMatchers(HttpMethod.PUT, "/api/V1/categories/**").hasAuthority("USER")
