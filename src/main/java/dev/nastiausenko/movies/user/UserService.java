@@ -1,5 +1,6 @@
 package dev.nastiausenko.movies.user;
 
+import dev.nastiausenko.movies.category.Category;
 import dev.nastiausenko.movies.jwt.JwtUtil;
 import dev.nastiausenko.movies.review.exception.ForbiddenException;
 import dev.nastiausenko.movies.user.exception.*;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -95,5 +97,13 @@ public class UserService {
         } catch (Exception e) {
             throw new ForbiddenException("You are not allowed to edit password");
         }
+    }
+
+    public List<Category> getCategories() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userName = auth.getName();
+        User user = userRepository.findByUsername(userName).orElseThrow(UserNotFoundException::new);
+
+        return user.getCategories();
     }
 }

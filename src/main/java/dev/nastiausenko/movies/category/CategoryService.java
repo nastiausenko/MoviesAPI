@@ -59,7 +59,13 @@ public class CategoryService {
             category.setPublicCategory(false);
         }
 
-        return categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
+
+        if (!isAdmin) {
+            user.getCategories().add(savedCategory);
+            userRepository.save(user);
+        }
+        return savedCategory;
     }
 
     public Category addMovie(ObjectId categoryId, List<String> movieTitles) {
@@ -96,6 +102,11 @@ public class CategoryService {
                 .orElseThrow(CategoryNotFoundException::new);
         checkAccessRights(category, user, isAdmin);
         categoryRepository.delete(category);
+
+        if (!isAdmin) {
+            user.getCategories().remove(category);
+            userRepository.save(user);
+        }
     }
 
     public Category removeMovie(ObjectId movieId, ObjectId categoryId) {
@@ -115,6 +126,18 @@ public class CategoryService {
         movies.remove(movieToRemove);
 
         category.setMovies(movies);
+        return categoryRepository.save(category);
+    }
+
+    public Category changeVisibility(ObjectId categoryId) {
+        User user = getAuthenticatedUser();
+        boolean isAdmin = isAdminUser();
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(CategoryNotFoundException::new);
+        checkAccessRights(category, user, isAdmin);
+
+        category.setPublicCategory(!category.isPublicCategory());
+
         return categoryRepository.save(category);
     }
 

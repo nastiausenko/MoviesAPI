@@ -1,5 +1,6 @@
 package dev.nastiausenko.movies.user;
 
+import dev.nastiausenko.movies.category.Category;
 import dev.nastiausenko.movies.review.Review;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +32,9 @@ public class User implements UserDetails {
     private String password;
     private Set<String> roles;
     private boolean isBlocked;
+
+    @DocumentReference
+    private List<Category> categories;
 
     @DocumentReference
     private List<Review> reviewIds;

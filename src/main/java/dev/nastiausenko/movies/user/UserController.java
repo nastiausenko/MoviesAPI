@@ -1,5 +1,6 @@
 package dev.nastiausenko.movies.user;
 
+import dev.nastiausenko.movies.category.Category;
 import dev.nastiausenko.movies.jwt.JwtUtil;
 import dev.nastiausenko.movies.user.dto.request.ChangePasswordRequest;
 import dev.nastiausenko.movies.user.dto.request.ChangeUsernameRequest;
@@ -14,8 +15,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/V1")
+@RequestMapping("/api/V1/user")
+@CrossOrigin(origins = "*")
 @Tag(name = "User", description = "The User API")
 @RequiredArgsConstructor
 public class UserController {
@@ -49,6 +53,13 @@ public class UserController {
     public ResponseEntity<?> updatePassword(@RequestBody ChangePasswordRequest request) {
             userService.editPassword(request.getNewPassword());
             return new ResponseEntity<>(new UserResponse(null), HttpStatus.OK);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @GetMapping("/categories")
+    public ResponseEntity<?> getUserCategories() {
+        List<Category> categories = userService.getCategories();
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
     private String getNewToken(String username) {
