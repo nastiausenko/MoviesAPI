@@ -47,6 +47,13 @@ public class CategoryController {
     }
 
     @SecurityRequirement(name = "JWT")
+    @PutMapping("/visibility/{id}")
+    public ResponseEntity<Category> visibility(@PathVariable("id") ObjectId id) {
+        Category category = categoryService.changeVisibility(id);
+        return new ResponseEntity<>(category, HttpStatus.OK);
+    }
+
+    @SecurityRequirement(name = "JWT")
     @DeleteMapping("/delete-category/{id}")
     public ResponseEntity<Category> deleteCategory(@PathVariable("id") ObjectId id) {
         categoryService.deleteCategory(id);

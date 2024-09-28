@@ -118,6 +118,18 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    public Category changeVisibility(ObjectId categoryId) {
+        User user = getAuthenticatedUser();
+        boolean isAdmin = isAdminUser();
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(CategoryNotFoundException::new);
+        checkAccessRights(category, user, isAdmin);
+
+        category.setPublicCategory(!category.isPublicCategory());
+
+        return categoryRepository.save(category);
+    }
+
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
