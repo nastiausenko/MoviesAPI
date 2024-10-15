@@ -27,6 +27,13 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Set up environment variables
+        run: |
+          echo "MONGO_DATABASE=${{ secrets.MONGO_DATABASE }}" >> $GITHUB_ENV
+          echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> $GITHUB_ENV
+          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> $GITHUB_ENV
+          echo "MONGO_CLUSTER=${{ secrets.MONGO_CLUSTER }}" >> $GITHUB_ENV
+
       - name: Build with Gradle
         run: ./gradlew build
 
