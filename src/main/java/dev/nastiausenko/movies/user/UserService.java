@@ -3,6 +3,7 @@ package dev.nastiausenko.movies.user;
 import dev.nastiausenko.movies.category.Category;
 import dev.nastiausenko.movies.jwt.JwtUtil;
 import dev.nastiausenko.movies.review.exception.ForbiddenException;
+import dev.nastiausenko.movies.user.dto.request.LoginRequest;
 import dev.nastiausenko.movies.user.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,37 +27,37 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
-    public String registerUser(User request) {
-        Optional<User> existingUser = userRepository.findByUsername(request.getUsername());
-        Optional<User> existingEmail = userRepository.findByEmail(request.getEmail());
+    public String registerUser(String username, String email, String password) {
+        Optional<User> existingUser = userRepository.findByUsername(username);
+        Optional<User> existingEmail = userRepository.findByEmail(email);
 
         if (existingUser.isPresent()) {
-            throw new UsernameAlreadyTakenException(request.getUsername());
+            throw new UsernameAlreadyTakenException(username);
         }
 
         if (existingEmail.isPresent()) {
-            throw new EmailAlreadyTakenException(request.getEmail());
+            throw new EmailAlreadyTakenException(email);
         }
 
         User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // Захист пароля
+                .username(username)
+                .email(email)
+                .password(passwordEncoder.encode(password))
                 .roles(Set.of("USER"))
                 .isBlocked(false)
                 .build();
 
         userRepository.save(user);
-        return loginUser(request);
+        return loginUser(email, password);
     }
 
-    public String loginUser(User request) {
+    public String loginUser(String email, String password) {
         try {
-            if (userRepository.findByEmail(request.getEmail()).isEmpty()) {
+            if (userRepository.findByEmail(email).isEmpty()) {
                 throw new UserNotFoundException();
             }
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(email, password)
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
 

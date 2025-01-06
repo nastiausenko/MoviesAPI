@@ -4,6 +4,8 @@ import dev.nastiausenko.movies.category.Category;
 import dev.nastiausenko.movies.jwt.JwtUtil;
 import dev.nastiausenko.movies.user.dto.request.ChangePasswordRequest;
 import dev.nastiausenko.movies.user.dto.request.ChangeUsernameRequest;
+import dev.nastiausenko.movies.user.dto.request.LoginRequest;
+import dev.nastiausenko.movies.user.dto.request.RegisterRequest;
 import dev.nastiausenko.movies.user.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,14 +31,14 @@ public class UserController {
     private final MongoUserDetailsService userDetailsService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User request) {
-            String jwtToken = userService.registerUser(request);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+            String jwtToken = userService.registerUser(request.getUsername(), request.getEmail(), request.getPassword());
             return new ResponseEntity<>(new UserResponse(jwtToken), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User request) {
-       String jwtToken = userService.loginUser(request);
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+       String jwtToken = userService.loginUser(request.getEmail(), request.getPassword());
        return new ResponseEntity<>(new UserResponse(jwtToken), HttpStatus.OK);
     }
 
