@@ -47,9 +47,7 @@ public class ReviewService {
 
     public List<Review> getAllUserReviews() {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-            ObjectId id = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+            ObjectId id = getCurrentUser();
             return reviewRepository.findByUserId(id);
         } catch (Exception e) {
             throw new ForbiddenException("Forbidden");
@@ -57,13 +55,9 @@ public class ReviewService {
     }
 
     public Review editReview(ObjectId id, String reviewBody) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-
         Review review = reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
 
-        if (!review.getUserId().equals(user.getId())) {
+        if (doesHaveRights(id)) {
             throw new ForbiddenException("You can only edit your own reviews");
         }
 
@@ -72,13 +66,14 @@ public class ReviewService {
     }
 
     public void deleteReview(ObjectId id, String imdbId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        ObjectId userId = getCurrentUser();
 
-        Review review = reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
+        boolean reviewExists = reviewRepository.existsById(id);
+        if (!reviewExists) {
+            return;
+        }
 
-        if (!review.getUserId().equals(user.getId())) {
+        if (doesHaveRights(id)) {
             throw new ForbiddenException("You can only delete your own reviews");
         }
 
@@ -90,8 +85,21 @@ public class ReviewService {
                 .first();
 
         mongoTemplate.update(User.class)
-                .matching(Criteria.where("id").is(user.getId()))
+                .matching(Criteria.where("id").is(userId))
                 .apply(new Update().pull("reviewIds", id))
                 .first();
+    }
+
+    private boolean doesHaveRights(ObjectId id) {
+        ObjectId currentUserId = getCurrentUser();
+        ObjectId userId = reviewRepository.findById(id).get().getUserId();
+
+        return !userId.equals(currentUserId);
+    }
+
+    private ObjectId getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        return userRepository.findByUsername(username).get().getId();
     }
 }

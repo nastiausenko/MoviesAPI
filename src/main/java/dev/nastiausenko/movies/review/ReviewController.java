@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/V1/reviews")
+@RequestMapping("/api/v1/reviews")
 @RequiredArgsConstructor
 public class ReviewController {
 
@@ -41,6 +41,6 @@ public class ReviewController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteReview(@PathVariable("id") ObjectId id, @RequestParam String imdbId) {
         reviewService.deleteReview(id, imdbId);
-        return new ResponseEntity<>("Review deleted successfully", HttpStatus.OK);
+        return ResponseEntity.noContent().build();
     }
 }

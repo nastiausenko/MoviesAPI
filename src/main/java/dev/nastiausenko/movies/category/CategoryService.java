@@ -25,7 +25,9 @@ public class CategoryService {
     private final MovieRepository movieRepository;
 
     public List<Category> getAll() {
-        return categoryRepository.findAll();
+        return categoryRepository.findAll().stream()
+                .filter(Category::isPublicCategory)
+                .toList();
     }
 
     public List<Category> getAllPublicUserCategories() {
