@@ -4,7 +4,6 @@ import dev.nastiausenko.movies.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,11 +27,9 @@ public class SecurityConfig {
     private static final String API_V1_REVIEW = "/api/v1/reviews/**";
     private static final String API_V1_ADMIN = "/api/v1/admin/**";
     private static final String API_V1_CATEGORY = "/api/v1/categories/**";
-
-
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
-    @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -41,9 +38,13 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher(API_V1_USER)).hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers(antMatcher(API_V1_REVIEW)).hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers(antMatcher(API_V1_ADMIN)).hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, API_V1_CATEGORY).anonymous()
                         .requestMatchers(antMatcher(API_V1_CATEGORY)).hasAuthority("USER")
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().anonymous()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
