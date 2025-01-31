@@ -2,10 +2,12 @@ package dev.nastiausenko.movies.category;
 
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -13,6 +15,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
+@Validated
 @AllArgsConstructor
 @RequestMapping("/api/v1/categories")
 public class CategoryController {
@@ -20,7 +23,7 @@ public class CategoryController {
 
     @SecurityRequirement(name = "JWT")
     @PostMapping("/create")
-    public ResponseEntity<Category> createCategory(@RequestParam String name, @RequestParam(required = false)List<String> movieTitles) {
+    public ResponseEntity<Category> createCategory(@RequestParam @Valid String name, @RequestParam(required = false)List<String> movieTitles) {
         Category category = categoryService.create(name, movieTitles);
         return new ResponseEntity<>(category, HttpStatus.CREATED);
     }
@@ -34,7 +37,7 @@ public class CategoryController {
 
     @SecurityRequirement(name = "JWT")
     @PutMapping("/change-name/{id}")
-    public ResponseEntity<Category> changeName(@PathVariable("id") ObjectId id, @RequestParam String newName) {
+    public ResponseEntity<Category> changeName(@PathVariable("id") ObjectId id, @RequestParam @Valid String newName) {
         Category category = categoryService.changeName(id, newName);
         return new ResponseEntity<>(category, HttpStatus.OK);
     }

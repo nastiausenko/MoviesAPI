@@ -1,5 +1,6 @@
 package dev.nastiausenko.movies.review;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ public class Review {
 
     @Id
     private ObjectId id;
+    @NotNull(message = "Review body is mandatory")
     private String body;
     private ObjectId userId;
 
