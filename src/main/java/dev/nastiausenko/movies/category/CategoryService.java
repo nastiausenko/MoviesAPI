@@ -42,7 +42,6 @@ public class CategoryService {
 
     public Category create(String name, List<String> movieTitles) {
         User user = getAuthenticatedUser();
-        ObjectId id = user.getId();
         boolean isAdmin = isAdminUser();
 
         List<Movie> movies = getMoviesByTitles(movieTitles);
@@ -57,7 +56,7 @@ public class CategoryService {
             category.setPublicCategory(true);
         } else {
             category.setAdminCategory(false);
-            category.setUserId(id);
+            category.setUserId(user.getId());
             category.setPublicCategory(false);
         }
 
@@ -100,14 +99,17 @@ public class CategoryService {
         User user = getAuthenticatedUser();
         boolean isAdmin = isAdminUser();
 
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(CategoryNotFoundException::new);
-        checkAccessRights(category, user, isAdmin);
-        categoryRepository.delete(category);
+        Optional<Category> categoryOpt = categoryRepository.findById(categoryId);
 
-        if (!isAdmin) {
-            user.getCategories().remove(category);
-            userRepository.save(user);
+        if (categoryOpt.isPresent()) {
+            Category category = categoryOpt.get();
+            checkAccessRights(category, user, isAdmin);
+            categoryRepository.deleteById(categoryId);
+
+            if (!isAdmin) {
+                user.getCategories().remove(category);
+                userRepository.save(user);
+            }
         }
     }
 
@@ -134,6 +136,7 @@ public class CategoryService {
     public Category changeVisibility(ObjectId categoryId) {
         User user = getAuthenticatedUser();
         boolean isAdmin = isAdminUser();
+
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(CategoryNotFoundException::new);
         checkAccessRights(category, user, isAdmin);

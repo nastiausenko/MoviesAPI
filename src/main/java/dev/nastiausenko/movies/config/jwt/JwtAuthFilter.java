@@ -1,4 +1,4 @@
-package dev.nastiausenko.movies.jwt;
+package dev.nastiausenko.movies.config.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

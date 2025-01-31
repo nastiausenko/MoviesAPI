@@ -1,4 +1,4 @@
-package dev.nastiausenko.movies.swagger;
+package dev.nastiausenko.movies.config.swagger;
 
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;

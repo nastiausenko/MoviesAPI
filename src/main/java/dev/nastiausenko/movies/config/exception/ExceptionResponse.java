@@ -1,4 +1,4 @@
-package dev.nastiausenko.movies.exception;
+package dev.nastiausenko.movies.config.exception;
 
 import java.time.LocalDateTime;
 

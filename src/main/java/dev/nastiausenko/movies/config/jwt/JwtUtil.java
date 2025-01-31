@@ -1,4 +1,4 @@
-package dev.nastiausenko.movies.jwt;
+package dev.nastiausenko.movies.config.jwt;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;

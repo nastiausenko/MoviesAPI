@@ -1,9 +1,8 @@
 package dev.nastiausenko.movies.user;
 
 import dev.nastiausenko.movies.category.Category;
-import dev.nastiausenko.movies.jwt.JwtUtil;
+import dev.nastiausenko.movies.config.jwt.JwtUtil;
 import dev.nastiausenko.movies.review.exception.ForbiddenException;
-import dev.nastiausenko.movies.user.dto.request.LoginRequest;
 import dev.nastiausenko.movies.user.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -106,5 +105,11 @@ public class UserService {
         User user = userRepository.findByUsername(userName).orElseThrow(UserNotFoundException::new);
 
         return user.getCategories();
+    }
+
+    public void deleteAccount() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        userRepository.deleteByEmail(auth.getName());
+
     }
 }

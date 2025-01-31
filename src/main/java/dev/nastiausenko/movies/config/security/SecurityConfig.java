@@ -1,6 +1,6 @@
-package dev.nastiausenko.movies.security;
+package dev.nastiausenko.movies.config.security;
 
-import dev.nastiausenko.movies.jwt.JwtAuthFilter;
+import dev.nastiausenko.movies.config.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

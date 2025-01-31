@@ -31,22 +31,22 @@ public class AdminController {
     }
 
     @SecurityRequirement(name = "JWT")
-    @PostMapping("/add-movie")
+    @PostMapping("/movies")
     public ResponseEntity<?> addMovie(@RequestBody Movie movie) {
         return new ResponseEntity<>(adminService.addMovie(movie), HttpStatus.OK);
     }
 
     @SecurityRequirement(name = "JWT")
-    @PutMapping("/edit-movie/{imdbId}")
+    @PutMapping("/movies/{imdbId}")
     public ResponseEntity<?> editMovie(@PathVariable String imdbId, @RequestBody Movie movie) {
         return new ResponseEntity<>(adminService.editMovie(imdbId, movie), HttpStatus.OK);
     }
 
     @SecurityRequirement(name = "JWT")
-    @PatchMapping("/delete-movie/{imdbId}")
+    @DeleteMapping("/movies/{imdbId}")
     public ResponseEntity<?> deleteMovie(@PathVariable String imdbId) {
        adminService.deleteMovie(imdbId);
-       return ResponseEntity.ok("Movie " + imdbId + " has been deleted");
+       return ResponseEntity.noContent().build();
     }
 
     @SecurityRequirement(name = "JWT")

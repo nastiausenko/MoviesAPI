@@ -1,4 +1,4 @@
-package dev.nastiausenko.movies.exception;
+package dev.nastiausenko.movies.config.exception;
 
 import dev.nastiausenko.movies.admin.exception.AdminRightsException;
 import dev.nastiausenko.movies.category.exception.CategoryNotFoundException;

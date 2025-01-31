@@ -1,7 +1,7 @@
 package dev.nastiausenko.movies.user;
 
 import dev.nastiausenko.movies.category.Category;
-import dev.nastiausenko.movies.jwt.JwtUtil;
+import dev.nastiausenko.movies.config.jwt.JwtUtil;
 import dev.nastiausenko.movies.user.dto.request.ChangePasswordRequest;
 import dev.nastiausenko.movies.user.dto.request.ChangeUsernameRequest;
 import dev.nastiausenko.movies.user.dto.request.LoginRequest;
@@ -62,6 +62,13 @@ public class UserController {
     public ResponseEntity<?> getUserCategories() {
         List<Category> categories = userService.getCategories();
         return new ResponseEntity<>(categories, HttpStatus.OK);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @DeleteMapping
+    public ResponseEntity<?> deleteAccount() {
+        userService.deleteAccount();
+        return ResponseEntity.noContent().build();
     }
 
     private String getNewToken(String username) {

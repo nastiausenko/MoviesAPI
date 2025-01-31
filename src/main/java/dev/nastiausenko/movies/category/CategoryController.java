@@ -55,9 +55,9 @@ public class CategoryController {
 
     @SecurityRequirement(name = "JWT")
     @DeleteMapping("/delete-category/{id}")
-    public ResponseEntity<Category> deleteCategory(@PathVariable("id") ObjectId id) {
+    public ResponseEntity<?> deleteCategory(@PathVariable("id") ObjectId id) {
         categoryService.deleteCategory(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping

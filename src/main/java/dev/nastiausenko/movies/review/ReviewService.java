@@ -55,10 +55,11 @@ public class ReviewService {
     }
 
     public Review editReview(ObjectId id, String reviewBody) {
+        ObjectId userId = getCurrentUser();
         Review review = reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
 
-        if (doesHaveRights(id)) {
-            throw new ForbiddenException("You can only edit your own reviews");
+        if (!review.getUserId().equals(userId)) {
+            throw new ForbiddenException("You can only delete your own reviews");
         }
 
         review.setBody(reviewBody);
@@ -68,38 +69,28 @@ public class ReviewService {
     public void deleteReview(ObjectId id, String imdbId) {
         ObjectId userId = getCurrentUser();
 
-        boolean reviewExists = reviewRepository.existsById(id);
-        if (!reviewExists) {
-            return;
-        }
+        reviewRepository.findById(id).ifPresent(review -> {
+            if (!review.getUserId().equals(userId)) {
+                throw new ForbiddenException("You can only delete your own reviews");
+            }
 
-        if (doesHaveRights(id)) {
-            throw new ForbiddenException("You can only delete your own reviews");
-        }
+            reviewRepository.deleteById(id);
 
-        reviewRepository.deleteById(id);
+            mongoTemplate.update(Movie.class)
+                    .matching(Criteria.where("imdbId").is(imdbId))
+                    .apply(new Update().pull("reviewIds", id))
+                    .first();
 
-        mongoTemplate.update(Movie.class)
-                .matching(Criteria.where("imdbId").is(imdbId))
-                .apply(new Update().pull("reviewIds", id))
-                .first();
-
-        mongoTemplate.update(User.class)
-                .matching(Criteria.where("id").is(userId))
-                .apply(new Update().pull("reviewIds", id))
-                .first();
-    }
-
-    private boolean doesHaveRights(ObjectId id) {
-        ObjectId currentUserId = getCurrentUser();
-        ObjectId userId = reviewRepository.findById(id).get().getUserId();
-
-        return !userId.equals(currentUserId);
+            mongoTemplate.update(User.class)
+                    .matching(Criteria.where("id").is(userId))
+                    .apply(new Update().pull("reviewIds", id))
+                    .first();
+        });
     }
 
     private ObjectId getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        return userRepository.findByUsername(username).get().getId();
+        return userRepository.findByUsername(username).map(User::getId).orElseThrow(UserNotFoundException::new);
     }
 }
