@@ -52,9 +52,6 @@ public class UserService {
 
     public String loginUser(String email, String password) {
         try {
-            if (userRepository.findByEmail(email).isEmpty()) {
-                throw new UserNotFoundException();
-            }
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password)
             );

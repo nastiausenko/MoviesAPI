@@ -2,5 +2,5 @@ package dev.nastiausenko.movies.config.exception;
 
 import java.time.LocalDateTime;
 
-public record ExceptionResponse(String message, int status, String path, LocalDateTime timestamp) {
+public record ExceptionResponse(Object message, int status, String path, LocalDateTime timestamp) {
 }
