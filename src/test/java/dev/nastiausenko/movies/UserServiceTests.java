@@ -80,8 +80,12 @@ public class UserServiceTests {
     @Test
     void shouldThrowExceptionWhenUsernameIsTaken() {
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        assertThrows(UsernameAlreadyTakenException.class, () -> userService.registerUser("Username1", user.getEmail(), user.getPassword()));
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+
+        assertThrows(UsernameAlreadyTakenException.class,
+                () -> userService.registerUser(user.getUsername(), user.getEmail(), user.getPassword()));
     }
+
 
     @Test
     void shouldLoginUserSuccessfully() {
