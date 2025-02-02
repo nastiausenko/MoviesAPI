@@ -1,10 +1,12 @@
 package dev.nastiausenko.movies.review;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,7 +14,8 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/V1/reviews")
+@Validated
+@RequestMapping("/api/v1/reviews")
 @RequiredArgsConstructor
 public class ReviewController {
 
@@ -20,7 +23,7 @@ public class ReviewController {
 
     @SecurityRequirement(name = "JWT")
     @PostMapping
-    public ResponseEntity<Review> addReview(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<Review> addReview(@RequestBody @Valid Map<String, String> payload) {
         return new ResponseEntity<>(reviewService.createReview(payload.get("reviewBody"), payload.get("imdbId")), HttpStatus.OK);
     }
 
@@ -32,7 +35,7 @@ public class ReviewController {
 
     @SecurityRequirement(name = "JWT")
     @PatchMapping("/{id}")
-    public ResponseEntity<Review> updateReview(@PathVariable("id") ObjectId id, @RequestBody Map<String, String> payload) {
+    public ResponseEntity<Review> updateReview(@PathVariable("id") ObjectId id, @RequestBody @Valid Map<String, String> payload) {
         Review updatedReview = reviewService.editReview(id, payload.get("reviewBody"));
         return new ResponseEntity<>(updatedReview, HttpStatus.OK);
     }
@@ -41,6 +44,6 @@ public class ReviewController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteReview(@PathVariable("id") ObjectId id, @RequestParam String imdbId) {
         reviewService.deleteReview(id, imdbId);
-        return new ResponseEntity<>("Review deleted successfully", HttpStatus.OK);
+        return ResponseEntity.noContent().build();
     }
 }

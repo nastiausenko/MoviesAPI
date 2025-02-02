@@ -1,6 +1,6 @@
-package dev.nastiausenko.movies.security;
+package dev.nastiausenko.movies.config.security;
 
-import dev.nastiausenko.movies.jwt.JwtAuthFilter;
+import dev.nastiausenko.movies.config.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,37 +16,35 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
+    private static final String API_V1_USER = "/api/v1/user/**";
+    private static final String API_V1_REVIEW = "/api/v1/reviews/**";
+    private static final String API_V1_ADMIN = "/api/v1/admin/**";
+    private static final String API_V1_CATEGORY = "/api/v1/categories/**";
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/V1/user/login", "/api/V1/user/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/V1/user/reviews").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/V1/user/change-username").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/V1/user/change-password").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/V1/user/categories").hasAnyAuthority("USER", "ADMIN")
-
-                        .requestMatchers(HttpMethod.GET, "/api/V1/reviews/user-reviews").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/V1/reviews/{id}").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/V1/reviews/{id}").hasAnyAuthority("USER", "ADMIN")
-
-                        .requestMatchers(HttpMethod.POST, "/api/V1/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/V1/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/V1/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/V1/admin/**").hasAuthority("ADMIN")
-
-                        .requestMatchers(HttpMethod.POST, "/api/V1/categories/**").hasAuthority("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/V1/categories/**").hasAuthority("USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/V1/categories/**").hasAuthority("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/user/login", "/api/v1/user/register").permitAll()
+                        .requestMatchers(antMatcher(API_V1_USER)).hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(antMatcher(API_V1_REVIEW)).hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(antMatcher(API_V1_ADMIN)).hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, API_V1_CATEGORY).anonymous()
+                        .requestMatchers(antMatcher(API_V1_CATEGORY)).hasAuthority("USER")
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().anonymous()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

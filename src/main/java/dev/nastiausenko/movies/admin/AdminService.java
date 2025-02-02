@@ -78,8 +78,7 @@ public class AdminService {
     }
 
     public void deleteMovie(String imdbId) {
-        Movie movie = movieRepository.findByImdbId(imdbId).orElseThrow(() -> new RuntimeException("Movie not found"));
-        movieRepository.delete(movie);
+        movieRepository.deleteByImdbId(imdbId);
     }
 
     public void blockUser(String username) {

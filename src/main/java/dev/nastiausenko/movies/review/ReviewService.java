@@ -47,9 +47,7 @@ public class ReviewService {
 
     public List<Review> getAllUserReviews() {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-            ObjectId id = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new).getId();
+            ObjectId id = getCurrentUser();
             return reviewRepository.findByUserId(id);
         } catch (Exception e) {
             throw new ForbiddenException("Forbidden");
@@ -57,14 +55,11 @@ public class ReviewService {
     }
 
     public Review editReview(ObjectId id, String reviewBody) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-
+        ObjectId userId = getCurrentUser();
         Review review = reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
 
-        if (!review.getUserId().equals(user.getId())) {
-            throw new ForbiddenException("You can only edit your own reviews");
+        if (!review.getUserId().equals(userId)) {
+            throw new ForbiddenException("You can only delete your own reviews");
         }
 
         review.setBody(reviewBody);
@@ -72,26 +67,30 @@ public class ReviewService {
     }
 
     public void deleteReview(ObjectId id, String imdbId) {
+        ObjectId userId = getCurrentUser();
+
+        reviewRepository.findById(id).ifPresent(review -> {
+            if (!review.getUserId().equals(userId)) {
+                throw new ForbiddenException("You can only delete your own reviews");
+            }
+
+            reviewRepository.deleteById(id);
+
+            mongoTemplate.update(Movie.class)
+                    .matching(Criteria.where("imdbId").is(imdbId))
+                    .apply(new Update().pull("reviewIds", id))
+                    .first();
+
+            mongoTemplate.update(User.class)
+                    .matching(Criteria.where("id").is(userId))
+                    .apply(new Update().pull("reviewIds", id))
+                    .first();
+        });
+    }
+
+    private ObjectId getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
-
-        Review review = reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
-
-        if (!review.getUserId().equals(user.getId())) {
-            throw new ForbiddenException("You can only delete your own reviews");
-        }
-
-        reviewRepository.deleteById(id);
-
-        mongoTemplate.update(Movie.class)
-                .matching(Criteria.where("imdbId").is(imdbId))
-                .apply(new Update().pull("reviewIds", id))
-                .first();
-
-        mongoTemplate.update(User.class)
-                .matching(Criteria.where("id").is(user.getId()))
-                .apply(new Update().pull("reviewIds", id))
-                .first();
+        return userRepository.findByUsername(username).map(User::getId).orElseThrow(UserNotFoundException::new);
     }
 }

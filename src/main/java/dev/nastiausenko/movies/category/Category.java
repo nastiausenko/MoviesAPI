@@ -1,10 +1,8 @@
 package dev.nastiausenko.movies.category;
 
 import dev.nastiausenko.movies.movie.Movie;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,6 +18,7 @@ import java.util.List;
 public class Category {
     @Id
     private ObjectId id;
+    @NotNull(message = "Category name is mandatory")
     private String name;
     private ObjectId userId;
     private boolean isAdminCategory;

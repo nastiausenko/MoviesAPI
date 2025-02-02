@@ -1,24 +1,29 @@
 package dev.nastiausenko.movies.user;
 
 import dev.nastiausenko.movies.category.Category;
-import dev.nastiausenko.movies.jwt.JwtUtil;
+import dev.nastiausenko.movies.config.jwt.JwtUtil;
 import dev.nastiausenko.movies.user.dto.request.ChangePasswordRequest;
 import dev.nastiausenko.movies.user.dto.request.ChangeUsernameRequest;
+import dev.nastiausenko.movies.user.dto.request.LoginRequest;
+import dev.nastiausenko.movies.user.dto.request.RegisterRequest;
 import dev.nastiausenko.movies.user.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/V1/user")
+@Validated
+@RequestMapping("/api/v1/user")
 @CrossOrigin(origins = "*")
 @Tag(name = "User", description = "The User API")
 @RequiredArgsConstructor
@@ -29,20 +34,20 @@ public class UserController {
     private final MongoUserDetailsService userDetailsService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User request) {
-            String jwtToken = userService.registerUser(request);
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest request) {
+            String jwtToken = userService.registerUser(request.getUsername(), request.getEmail(), request.getPassword());
             return new ResponseEntity<>(new UserResponse(jwtToken), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User request) {
-       String jwtToken = userService.loginUser(request);
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
+       String jwtToken = userService.loginUser(request.getEmail(), request.getPassword());
        return new ResponseEntity<>(new UserResponse(jwtToken), HttpStatus.OK);
     }
 
     @SecurityRequirement(name = "JWT")
     @PatchMapping("/change-username")
-    public ResponseEntity<?> update(@RequestBody ChangeUsernameRequest request) {
+    public ResponseEntity<?> update(@RequestBody @Valid ChangeUsernameRequest request) {
             userService.editUsername(request.getNewUsername());
             String token = getNewToken(request.getNewUsername());
             return new ResponseEntity<>(new UserResponse(token), HttpStatus.OK);
@@ -50,7 +55,7 @@ public class UserController {
 
     @SecurityRequirement(name = "JWT")
     @PatchMapping("/change-password")
-    public ResponseEntity<?> updatePassword(@RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<?> updatePassword(@RequestBody @Valid ChangePasswordRequest request) {
             userService.editPassword(request.getNewPassword());
             return new ResponseEntity<>(new UserResponse(null), HttpStatus.OK);
     }
@@ -60,6 +65,13 @@ public class UserController {
     public ResponseEntity<?> getUserCategories() {
         List<Category> categories = userService.getCategories();
         return new ResponseEntity<>(categories, HttpStatus.OK);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @DeleteMapping
+    public ResponseEntity<?> deleteAccount() {
+        userService.deleteAccount();
+        return ResponseEntity.noContent().build();
     }
 
     private String getNewToken(String username) {

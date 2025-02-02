@@ -18,4 +18,6 @@ public interface MovieRepository extends MongoRepository<Movie, ObjectId> {
     List<Movie> findByGenresIn(List<String> genres);
 
     Optional<Movie> findByTitle(String title);
+
+    void deleteByImdbId(String imdbId);
 }
