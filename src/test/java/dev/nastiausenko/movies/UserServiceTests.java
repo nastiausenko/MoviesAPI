@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTests {
+class UserServiceTests {
 
     @MockBean
     private UserRepository userRepository;
@@ -47,9 +48,9 @@ public class UserServiceTests {
     private User user;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         user = User.builder()
-                .username("Username1")
+                .name("Username1")
                 .email("example@email.com")
                 .password("Password07")
                 .roles(Set.of("USER"))
@@ -59,12 +60,12 @@ public class UserServiceTests {
 
     @Test
     void shouldRegisterUserSuccessfully() {
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
+        when(userRepository.findByName(user.getName())).thenReturn(Optional.empty());
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(user.getPassword())).thenReturn("encodedPassword");
         when(jwtUtil.generateToken(any())).thenReturn("JWT");
 
-        String token = userService.registerUser(user.getUsername(), user.getEmail(), user.getPassword());
+        String token = userService.registerUser(user.getName(), user.getEmail(), user.getPassword());
 
         assertNotNull(token);
         verify(userRepository).save(any(User.class));
@@ -74,16 +75,16 @@ public class UserServiceTests {
     @Test
     void shouldThrowExceptionWhenEmailIsAlreadyTaken() {
        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-       assertThrows(EmailAlreadyTakenException.class, () -> userService.registerUser(user.getUsername(), "example@email.com", user.getPassword()));
+       assertThrows(EmailAlreadyTakenException.class, () -> userService.registerUser(user.getName(), "example@email.com", user.getPassword()));
     }
 
     @Test
     void shouldThrowExceptionWhenUsernameIsTaken() {
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(userRepository.findByName(user.getName())).thenReturn(Optional.of(user));
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
 
         assertThrows(UsernameAlreadyTakenException.class,
-                () -> userService.registerUser(user.getUsername(), user.getEmail(), user.getPassword()));
+                () -> userService.registerUser(user.getName(), user.getEmail(), user.getPassword()));
     }
 
 
@@ -107,5 +108,37 @@ public class UserServiceTests {
                 .thenThrow(BadCredentialsException.class);
 
         assertThrows(BadCredentialsException.class, () -> userService.loginUser(user.getEmail(), "wrongPass2"));
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenUsernameIsAlreadyTaken() {
+        String takenUsername = "takenUsername";
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn(user.getName());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        when(userRepository.findByName(user.getName())).thenReturn(Optional.of(user));
+        when(userRepository.findByName(takenUsername)).thenReturn(Optional.of(mock(User.class)));
+
+        assertThrows(UsernameAlreadyTakenException.class, () -> userService.editUsername(takenUsername));
+    }
+
+    @Test
+    void shouldEditUsernameSuccessfully() {
+        String newUsername = "NewUsername";
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn(user.getName());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        when(userRepository.findByName(user.getName())).thenReturn(Optional.of(user));
+        when(userRepository.findByName(newUsername)).thenReturn(Optional.empty());
+
+        userService.editUsername(newUsername);
+
+        assertEquals(newUsername, user.getName());
+        verify(userRepository).save(user);
     }
 }

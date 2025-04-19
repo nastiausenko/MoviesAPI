@@ -2,10 +2,7 @@ package dev.nastiausenko.movies.user;
 
 import dev.nastiausenko.movies.category.Category;
 import dev.nastiausenko.movies.review.Review;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -27,7 +24,7 @@ public class User implements UserDetails {
 
     @Id
     private ObjectId id;
-    private String username;
+    private String name;
     private String email;
     private String password;
     private Set<String> roles;

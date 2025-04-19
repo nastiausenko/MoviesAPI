@@ -22,7 +22,7 @@ public class AdminService {
     private final MovieRepository movieRepository;
 
     public void grantAdmin(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByName(username).orElseThrow(UserNotFoundException::new);
 
         if (!user.getRoles().contains("ADMIN")) {
             user.getRoles().add("ADMIN");
@@ -33,7 +33,7 @@ public class AdminService {
     }
 
     public void revokeAdmin(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByName(username).orElseThrow(UserNotFoundException::new);
 
         if (user.getRoles().contains("ADMIN")) {
             user.getRoles().remove("ADMIN");
@@ -47,7 +47,7 @@ public class AdminService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         return userRepository.findAll().stream()
-                .filter(user -> !user.getUsername().equals(username))
+                .filter(user -> !user.getName().equals(username))
                 .collect(Collectors.toList());
     }
 
@@ -82,7 +82,7 @@ public class AdminService {
     }
 
     public void blockUser(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByName(username).orElseThrow(UserNotFoundException::new);
         if (user.isAccountNonLocked()) {
             user.setBlocked(true);
             userRepository.save(user);
@@ -92,7 +92,7 @@ public class AdminService {
     }
 
     public void unlockUser(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByName(username).orElseThrow(UserNotFoundException::new);
         if (!user.isAccountNonLocked()) {
             user.setBlocked(false);
             userRepository.save(user);
