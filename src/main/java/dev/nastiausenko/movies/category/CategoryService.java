@@ -149,7 +149,7 @@ public class CategoryService {
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        return userRepository.findByUsername(username)
+        return userRepository.findByName(username)
                 .orElseThrow(UserNotFoundException::new);
     }
 

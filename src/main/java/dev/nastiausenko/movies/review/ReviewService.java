@@ -29,7 +29,7 @@ public class ReviewService {
     public Review createReview(String reviewBody, String imdbId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByName(username).orElseThrow(UserNotFoundException::new);
         Review review = reviewRepository.insert(new Review(reviewBody, user.getId()));
 
         mongoTemplate.update(Movie.class)
@@ -91,6 +91,6 @@ public class ReviewService {
     private ObjectId getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        return userRepository.findByUsername(username).map(User::getId).orElseThrow(UserNotFoundException::new);
+        return userRepository.findByName(username).map(User::getId).orElseThrow(UserNotFoundException::new);
     }
 }
